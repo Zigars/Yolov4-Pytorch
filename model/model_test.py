@@ -33,7 +33,7 @@ if __name__ == "__main__":
     heads = yolo_head(255, feature_channels).to(device)
     # print(head)
     yolov4 = Yolo_Body(3, 80).to(device)
-    torch.save(yolov4.state_dict(), 'yolov4.pt')
+    torch.save(yolov4.state_dict(), '../model_data/yolov4.pt')
     x = torch.randn(1, 3, 416, 416).to(device)
     torch.cuda.empty_cache()
     print("*"*8 , "this is backbone output", "*"*8)
