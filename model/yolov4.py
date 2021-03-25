@@ -1,5 +1,4 @@
 '''
-TODO
 @Description:yolov4整体结构
 @Author:Zigar
 @Date:2021/03/05 15:35:24
