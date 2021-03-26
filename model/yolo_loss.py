@@ -1,5 +1,5 @@
 '''
-TODO
+TODO 未debug
 @Description:yolov4_loss 损失计算
 @Author:Zigar
 @Date:2021/03/11 11:32:42
@@ -10,7 +10,7 @@ import math
 import numpy as np
 import torch.nn.functional as F
 from PIL import Image
-from utils.utils import box_iou, box_ciou, clip_by_tensor
+from utils.utils import box_iou, box_ciou, clip_by_tensor, smooth_labels
 
 
 #---------------------------------------------------------------#
@@ -110,7 +110,7 @@ class YOLOLoss(nn.Module):
         #   t_conf      batch_size, 3, in_h, in_w   置信度真实值
         #   t_cls       batch_size, 3, in_h, in_w, num_classes  种类真实值
         #-----------------------------------------------------------------#
-        obj_mask, no_obj_mask, t_box, t_conf, t_cls, box_loss_scale_x, box_loss_scales_y = self.get_target(
+        obj_mask, no_obj_mask, t_box, t_conf, t_cls, box_loss_scale_x, box_loss_scale_y = self.get_target(
             targets, scaled_anchors, in_w, in_h
         )
 
@@ -122,6 +122,39 @@ class YOLOLoss(nn.Module):
         no_obj_mask, pred_boxes_for_ciou = self.get_ignore(
             prediction, targets, scaled_anchors, in_w, in_h, no_obj_mask
             )
+        
+        #---------------------------------------------------------------#
+        #    计算全部loss
+        #---------------------------------------------------------------#
+        if self.cuda:
+            obj_mask, no_obj_mask = obj_mask.cuda, no_obj_mask.cuda
+            box_loss_scale_x, box_loss_scale_y = box_loss_scale_x.cuda, box_loss_scale_y.cuda
+            t_conf, t_cls = t_conf.cuda, t_cls.cuda
+            pred_boxes_for_ciou = pred_boxes_for_ciou.cuda
+            t_box = t_box.cuda()
+
+        box_loss_scale = 2 - box_loss_scale_x * box_loss_scale_y
+
+        # 计算预测结果与真实结果的CIOU的loss
+        ciou = (1 - box_ciou(pred_boxes_for_ciou[obj_mask.bool()], t_box[obj_mask.bool()])) * box_loss_scale[obj_mask.bool()]
+        loss_loc = torch.sum(ciou)
+
+        # 计算置信度的loss
+        loss_conf = torch.sum(BCELoss(pred_conf, obj_mask) * obj_mask) + \
+                    torch.sum(BCELoss(pred_conf, obj_mask) * no_obj_mask)
+
+        loss_cls = torch.sum(BCELoss(pred_cls[obj_mask == 1], smooth_labels(t_cls[obj_mask == 1], self.label_smooth, self.num_classes)))
+
+        loss = loss_conf * self.lambda_conf + loss_cls * self.lamnda_cls + loss_loc * self.lambda_loc
+
+        if self.normallize:
+            num_pos = torch.sum(obj_mask)
+            num_pos = torch.max(num_pos, torch.ones_like(num_pos))
+        else:
+            num_pos = batch_size / 3
+
+        return loss, num_pos
+
         
 
 
