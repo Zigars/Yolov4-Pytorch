@@ -27,7 +27,6 @@ def box_iou(_box_a, _box_b):
     # box_a, box_b左上角(x1, y1)和右下角坐标(x2, y2)
     b1_x1, b1_y1 = _box_a[:, 0] - _box_a[:, 2] / 2, _box_a[:, 1] - _box_a[:, 3] / 2
     b1_x2, b1_y2 = _box_a[:, 0] + _box_a[:, 2] / 2, _box_a[:, 1] + _box_a[:, 3] / 2
-    # box_b左上角和右下角坐标
     b2_x1, b2_y1 = _box_b[:, 0] - _box_b[:, 2] / 2, _box_b[:, 1] - _box_b[:, 3] / 2
     b2_x2, b2_y2 = _box_b[:, 0] + _box_b[:, 2] / 2, _box_b[:, 1] + _box_b[:, 3] / 2
     # 生成两个和所给框相同shape的全0数组
@@ -40,7 +39,7 @@ def box_iou(_box_a, _box_b):
     B = box_b.size(0)
     # 计算交集坐标
     max_xy = torch.min(box_a[:, 2:].unsqueeze(1).expand(A, B, 2),
-                       box_a[:, 2:].unsqueeze(0).expand(A, B, 2))
+                       box_b[:, 2:].unsqueeze(0).expand(A, B, 2))
     min_xy = torch.max(box_a[:, :2].unsqueeze(1).expand(A, B, 2),
                        box_b[:, :2].unsqueeze(0).expand(A, B, 2))
     # 计算交集面积

@@ -93,7 +93,7 @@ class YOLOLoss(nn.Module):
         #   https://blog.csdn.net/qq_36653505/article/details/83375160
         #---------------------------------------------------------------#
         prediction = input.view(batch_size, int(self.num_anchors / 3),
-                                self.bbox_attrs,in_h,in_w).permute(0, 1, 3, 4, 2).contuguous()
+                                self.bbox_attrs,in_h,in_w).permute(0, 1, 3, 4, 2).contiguous()
 
         # 获取位置置信度，是否有目标
         pred_conf = torch.sigmoid(prediction[..., 4])
@@ -127,10 +127,10 @@ class YOLOLoss(nn.Module):
         #    计算全部loss
         #---------------------------------------------------------------#
         if self.cuda:
-            obj_mask, no_obj_mask = obj_mask.cuda, no_obj_mask.cuda
-            box_loss_scale_x, box_loss_scale_y = box_loss_scale_x.cuda, box_loss_scale_y.cuda
-            t_conf, t_cls = t_conf.cuda, t_cls.cuda
-            pred_boxes_for_ciou = pred_boxes_for_ciou.cuda
+            obj_mask, no_obj_mask = obj_mask.cuda(), no_obj_mask.cuda()
+            box_loss_scale_x, box_loss_scale_y = box_loss_scale_x.cuda(), box_loss_scale_y.cuda()
+            t_conf, t_cls = t_conf.cuda(), t_cls.cuda()
+            pred_boxes_for_ciou = pred_boxes_for_ciou.cuda()
             t_box = t_box.cuda()
 
         box_loss_scale = 2 - box_loss_scale_x * box_loss_scale_y
@@ -356,7 +356,7 @@ class YOLOLoss(nn.Module):
                 gy = target[i][:, 1:2] * in_h
                 gw = target[i][:, 2:3] * in_w
                 gh = target[i][:, 3:4] * in_h
-                gt_box = torch.FloatTensor(torch.cat([gx, gy, gw, gh], -1).type(FloatTensor))
+                gt_box = torch.FloatTensor(torch.cat([gx, gy, gw, gh], -1)).type(FloatTensor)
 
                 # 计算真实框与预测框交并比 num_true_box, num_anchors
                 anch_iou = box_iou(gt_box, pred_boxes_for_ignore)
