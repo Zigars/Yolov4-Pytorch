@@ -1,5 +1,4 @@
 '''
-TODO 未debug
 @Description:yolov4_loss 损失计算
 @Author:Zigar
 @Date:2021/03/11 11:32:42
