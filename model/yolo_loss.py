@@ -37,20 +37,20 @@ def BCELoss(pred, target):
 class YOLOLoss(nn.Module):
     def __init__(self, anchors, num_classes, img_size, label_smooth=0, cuda=True, normalize=True):
         super(YOLOLoss, self).__init__()
-        self.anchors = anchors
-        self.num_anchors = len(anchors)
-        self.num_classes = num_classes
-        self.bbox_attrs = 5 + num_classes  # 5 = xywh + conf
-        self.img_size = img_size
+        self.anchors        = anchors
+        self.num_anchors    = len(anchors)
+        self.num_classes    = num_classes
+        self.bbox_attrs     = 5 + num_classes  # 5 = xywh + conf
+        self.img_size       = img_size
         self.feature_length = [img_size[0]//32, img_size[0]//16, img_size[0]//8]
-        self.label_smooth = label_smooth
+        self.label_smooth   = label_smooth
 
         self.ignore_threshold = 0.5
-        self.lambda_conf = 1.0
-        self.lamnda_cls = 1.0
-        self.lambda_loc = 1.0
-        self.cuda = cuda
-        self.normallize = normalize
+        self.lambda_conf      = 1.0
+        self.lamnda_cls       = 1.0
+        self.lambda_loc       = 1.0
+        self.cuda             = cuda
+        self.normallize       = normalize
 
     def forward(self, input, targets=None):
         #--------------------------------------------------------------#
@@ -325,11 +325,9 @@ class YOLOLoss(nn.Module):
         #---------------------------------------------------------------#
         
         grid_x = torch.linspace(0, in_w - 1, in_w).repeat(in_h, 1).repeat(
-            int(batch_size * self.num_anchors/3), 1, 1
-        ).view(x.shape).type(FloatTensor)
-        grid_y = torch.linspace(0, in_h - 1, in_w).repeat(in_h, 1).repeat(
-            int(batch_size * self.num_anchors/3), 1, 1
-        ).view(x.shape).type(FloatTensor)
+            int(batch_size * self.num_anchors/3), 1, 1).view(x.shape).type(FloatTensor)
+        grid_y = torch.linspace(0, in_h - 1, in_h).repeat(in_w, 1).t().repeat(
+            int(batch_size * self.num_anchors/3), 1, 1).view(y.shape).type(FloatTensor)
 
         # 生成先验框的宽高
         anchor_w = FloatTensor(scaled_anchors).index_select(1, LongTensor([0]))
