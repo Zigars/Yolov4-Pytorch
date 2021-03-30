@@ -43,19 +43,19 @@ class DecodeBox(nn.Module):
         #---------------------------------------------------------------#
         stride_h = self.img_size[1] / input_h
         stride_w = self.img_size[0] / input_w
-        
+
         # 获得相对于特征层的anchors
         scaled_anchors = [(anchor_w / stride_w, anchor_h / stride_h) for anchor_w, anchor_h in self.anchors]
-        
+
         #---------------------------------------------------------------#
         #    转换input的shape为
         #    batch_size, 3, 13, 13, 85
         #    batch_size, 3, 26, 26, 85
         #    batch_size, 3, 52, 52, 85
         #---------------------------------------------------------------#
-        prediction = input.view(batch_size, self.num_anchors, 
+        prediction = input.view(batch_size, self.num_anchors,
                                 self.bbox_attrs, input_h, input_w).permute(0, 1, 3, 4, 2).contiguous()
-        
+
         # 先验框的中心位置的调整参数
         x = torch.sigmoid(prediction[..., 0])
         y = torch.sigmoid(prediction[..., 1])
@@ -103,11 +103,11 @@ class DecodeBox(nn.Module):
         pred_boxes[..., 2] = torch.exp(w.data) * anchor_w
         pred_boxes[..., 3] = torch.exp(h.data) * anchor_h
 
-        self.show_anchor(input_h, pred_boxes, grid_x, grid_y, anchor_w, anchor_h)
+        # self.show_anchor(input_h, pred_boxes, grid_x, grid_y, anchor_w, anchor_h)
 
         # 将输出调整为相对于416*416的大小
         _scale = torch.Tensor([stride_w, stride_h] * 2).type(FloatTensor)
-        output = torch.cat((pred_boxes.view(batch_size, -1, 4) * _scale, 
+        output = torch.cat((pred_boxes.view(batch_size, -1, 4) * _scale,
                             conf.view(batch_size, -1, 1), pred_cls.view(batch_size, -1, self.num_classes)), -1)
         return output.data
 
@@ -128,8 +128,8 @@ class DecodeBox(nn.Module):
             plt.xlim(0,52)
         plt.scatter(grid_x.cpu(),grid_y.cpu())
 
-        anchor_left = grid_x - anchor_w/2 
-        anchor_top = grid_y - anchor_h/2 
+        anchor_left = grid_x - anchor_w/2
+        anchor_top = grid_y - anchor_h/2
 
         rect1 = plt.Rectangle([anchor_left[0,0,5,5],anchor_top[0,0,5,5]],anchor_w[0,0,5,5],anchor_h[0,0,5,5],color="r",fill=False)
         rect2 = plt.Rectangle([anchor_left[0,1,5,5],anchor_top[0,1,5,5]],anchor_w[0,1,5,5],anchor_h[0,1,5,5],color="r",fill=False)
@@ -152,8 +152,8 @@ class DecodeBox(nn.Module):
         plt.scatter(grid_x.cpu(),grid_y.cpu())
         plt.scatter(pred_boxes[0,:,5,5,0].cpu(),pred_boxes[0,:,5,5,1].cpu(),c='r')
 
-        pre_left = pred_boxes[...,0] - pred_boxes[...,2]/2 
-        pre_top = pred_boxes[...,1] - pred_boxes[...,3]/2 
+        pre_left = pred_boxes[...,0] - pred_boxes[...,2]/2
+        pre_top = pred_boxes[...,1] - pred_boxes[...,3]/2
 
         rect1 = plt.Rectangle([pre_left[0,0,5,5],pre_top[0,0,5,5]],pred_boxes[0,0,5,5,2],pred_boxes[0,0,5,5,3],color="r",fill=False)
         rect2 = plt.Rectangle([pre_left[0,1,5,5],pre_top[0,1,5,5]],pred_boxes[0,1,5,5,2],pred_boxes[0,1,5,5,3],color="r",fill=False)
@@ -168,9 +168,12 @@ class DecodeBox(nn.Module):
 
 #---------------------------------------------------------------#
 #    给图像增加灰条，实现不失真的resize
+#    这里bubbliiiing把letterbox_img用在检测的部分
+#    我觉得这个方法如果放在训练中应该会有提升
+#    或者说这本来就是一种训练的数据增强方法
 #    https://blog.csdn.net/qq_36767550/article/details/112499530
 #---------------------------------------------------------------#
-def letterbox_img(image, size):
+def letterbox_image(image, size):
     """
     @param:
     -------
