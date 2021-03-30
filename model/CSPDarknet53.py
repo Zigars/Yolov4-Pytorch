@@ -127,7 +127,7 @@ class CSPdarknet(nn.Module):
     #    初始化权重
     #---------------------------------------------------------------#
     def _initialize_weights(self):
-        print("**"*10, "initing CSPDarknet53 weights", "**"*10)
+        # print("**"*10, "initing CSPDarknet53 weights", "**"*10)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -136,13 +136,13 @@ class CSPdarknet(nn.Module):
                 if m.bias is not None:
                     m.bias.data.zero_()
 
-                print("initing {}".format(m))
+                # print("initing {}".format(m))
 
             elif isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
-                print("initing {}".format(m))
+                # print("initing {}".format(m))
 
 
 #---------------------------------------------------------------#

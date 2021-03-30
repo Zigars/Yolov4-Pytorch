@@ -3,12 +3,11 @@
 @Author:Zigar
 @Date:2021/03/05 15:37:00
 '''
-import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from model.attention import SEModule, CBAM
-import config.yolov4_cfg as cfg
+from config.config import cfg
 
 #---------------------------------------------------------------#
 #   Mish激活函数
@@ -108,7 +107,7 @@ class Resblock(nn.Module):
         )
 
         # self.activation = activate_name[residual_activation]
-        self.attention = cfg.ATTENTION["TYPE"]
+        self.attention = cfg.MODEL.ATTENTION["TYPE"]
         if self.attention == "SEnet":
             self.attention_module = SEModule(channels)
         elif self.attention == "CBAM":

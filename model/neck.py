@@ -111,7 +111,7 @@ class SpatialPyramidPooling(nn.Module):
     #    初始化权重
     #---------------------------------------------------------------#
     def _initialize_weights(self):
-        print("**"*10, "initing head_conv and SPP weights", "**"*10)
+        # print("**"*10, "initing head_conv and SPP weights", "**"*10)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -119,13 +119,13 @@ class SpatialPyramidPooling(nn.Module):
                 if m.bias is not None:
                     m.bias.data.zero_()
 
-                print("initing {}".format(m))
+                # print("initing {}".format(m))
 
             elif isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
-                print("initing {}".format(m))
+                # print("initing {}".format(m))
 
 
 
@@ -253,7 +253,7 @@ class PANet(nn.Module):
     #    初始化权重
     #---------------------------------------------------------------#
     def _initialize_weights(self):
-        print("**"*10, "initing PANet weights", "**"*10)
+        # print("**"*10, "initing PANet weights", "**"*10)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -261,13 +261,13 @@ class PANet(nn.Module):
                 if m.bias is not None:
                     m.bias.data.zero_()
 
-                print("initing {}".format(m))
+                # print("initing {}".format(m))
 
             elif isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
-                print("initing {}".format(m))
+                # print("initing {}".format(m))
 
 
 #---------------------------------------------------------------#

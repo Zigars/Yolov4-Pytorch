@@ -44,10 +44,11 @@ class yolo_head(nn.Module):
         out4 = self.head4(features[1])
         out5 = self.head5(features[2])
 
-        return [out3, out4, out5]
+        # 输出结果应该是13，26，52
+        return [out5, out4, out3]
 
     def _initialize_weights(self):
-        print("**"*10, "initing yolo_head weights", "**"*10)
+        # print("**"*10, "initing yolo_head weights", "**"*10)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -55,13 +56,13 @@ class yolo_head(nn.Module):
                 if m.bias is not None:
                     m.bias.data.zero_()
 
-                print("initing {}".format(m))
+                # print("initing {}".format(m))
 
             elif isinstance(m, nn.BatchNorm2d):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
-                print("initing {}".format(m))
+                # print("initing {}".format(m))
 
 
 
